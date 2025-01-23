@@ -1,9 +1,10 @@
 ﻿namespace SAP4.Entities;
 
-public class NotaFiscalSAP
+public class InvoiceSAP
 {
+
     public int Id { get; set; }
     public DateTime Date { get; set; }
-    public NfStatus Status { get; set; }
+    public InvoiceStatus Status { get; set; }
 
 }
