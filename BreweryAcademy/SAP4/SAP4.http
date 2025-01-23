@@ -1,4 +1,4 @@
-@SAP4_HostAddress = http://localhost:5279
+@SAP4_HostAddress = http://localhost:5258
 
 GET {{SAP4_HostAddress}}/weatherforecast/
 Accept: application/json

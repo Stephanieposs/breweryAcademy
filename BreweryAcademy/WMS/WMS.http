@@ -1,4 +1,4 @@
-@WMS_HostAddress = http://localhost:5209
+@WMS_HostAddress = http://localhost:5172
 
 GET {{WMS_HostAddress}}/weatherforecast/
 Accept: application/json
