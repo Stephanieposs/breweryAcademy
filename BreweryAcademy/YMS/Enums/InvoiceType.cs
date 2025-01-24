@@ -1,10 +1,14 @@
-﻿namespace YMS.Enums
+﻿using System.ComponentModel;
+
+namespace YMS.Enums
 {
 	public enum InvoiceType
 	{
+		[Description("None")]
 		None = 0,
+		[Description("Entry")]
 		Entry,
-		Exist,
-		MaterialEntry
+		[Description("Exist")]
+		Exist
 	}
 }
