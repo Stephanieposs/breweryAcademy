@@ -1,9 +1,19 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+/*
 builder.Services.AddControllers().AddJsonOptions(options =>
-	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())); builder.Services.AddEndpointsApiExplorer();
+	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())); 
+*/
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
+
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DefaultContext>(opt =>
 {

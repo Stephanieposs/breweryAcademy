@@ -9,7 +9,7 @@ namespace YMS.Data.Mapping
 			builder.HasKey(x => x.Id);
 			builder.Property(x => x.InvoiceId).IsRequired();
 			builder.Property(x => x.InvoiceType).IsRequired();
-			builder.HasMany<InvoiceItem>(x => x.Items).WithOne().HasForeignKey(x => x.Invoice);
+			builder.HasMany<InvoiceItem>(x => x.Items).WithOne().HasForeignKey(x => x.InvoiceId);
 		}
 	}
 }

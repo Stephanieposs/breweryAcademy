@@ -32,8 +32,12 @@ namespace YMS.Controllers
 			try
 			{
 				var result = service.CreateCheckIn(request);
-				return Created($"CheckIn/{result.Id}", result);
-			}
+                return Ok(new CreateCheckInResponse
+                {
+                    Id = result.Id,
+                });
+                //return Created($"CheckIn/{result.Id}", result);
+            }
 			catch(Exception ex)
 			{
 				return BadRequest(ex);
