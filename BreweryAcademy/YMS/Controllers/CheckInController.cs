@@ -25,7 +25,6 @@ namespace YMS.Controllers
 			}
 		}
 
-		// GET api/<ValuesController>/5
 		[HttpGet("{id}")]
 		public async Task<IActionResult> Get([FromRoute] int id)
 		{
@@ -44,7 +43,6 @@ namespace YMS.Controllers
 			
 		}
 
-		// POST api/<ValuesController>
 		[HttpPost]
 		public async Task<IActionResult> Post([FromBody] CreateCheckInBody request)
 		{
