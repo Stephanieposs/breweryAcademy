@@ -12,6 +12,7 @@ namespace YMS.Controllers
 	[ApiController]
 	public class CheckInController(CheckInService service) : ControllerBase
 	{
+		[ProducesResponseType(typeof(GetAllCheckInsResponse), StatusCodes.Status200OK)]
 		[HttpGet]
 		public async Task<IActionResult> Get()
 		{
@@ -26,6 +27,7 @@ namespace YMS.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[ProducesResponseType(typeof(GetCheckIn), StatusCodes.Status200OK)]
 		public async Task<IActionResult> Get([FromRoute] int id)
 		{
 			try
