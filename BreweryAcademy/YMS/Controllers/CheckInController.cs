@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using YMS.DTO;
+using YMS.Exceptions;
 using YMS.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,18 +12,36 @@ namespace YMS.Controllers
 	[ApiController]
 	public class CheckInController(CheckInService service) : ControllerBase
 	{
-
 		[HttpGet]
-		public IEnumerable<string> Get()
+		public async Task<IActionResult> Get()
 		{
-			return new string[] { "value1", "value2" };
+			try
+			{
+				var result = await service.GetAllCheckIns();
+				return Ok(result);
+			}
+			catch (Exception ex) { 
+				return BadRequest(ex.Message);	
+			}
 		}
 
 		// GET api/<ValuesController>/5
 		[HttpGet("{id}")]
-		public string Get(int id)
+		public async Task<IActionResult> Get([FromRoute] int id)
 		{
-			return "value";
+			try
+			{
+				var response = await service.GetCheckIn(id);
+				return Ok(response);
+			}
+			catch (NotFoundException ex)
+			{
+				return NotFound(ex.Message);
+			}
+			catch (Exception ex) {
+				return BadRequest(ex.Message);
+			}
+			
 		}
 
 		// POST api/<ValuesController>

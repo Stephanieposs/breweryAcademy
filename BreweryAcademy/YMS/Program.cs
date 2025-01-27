@@ -23,6 +23,7 @@ builder.Services.AddControllers()
 builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("Database")!);
 
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 builder.Services.AddScoped<ICheckInRepository, CheckInRepository>();
