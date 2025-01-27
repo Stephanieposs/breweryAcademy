@@ -2,7 +2,8 @@
 {
     public enum OperationType
     {
-        Load,
-        Unload
+        None = 0,
+        Load = 1,
+        Unload = 2 
     }
 }

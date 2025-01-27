@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WMS.Entities;
 using WMS.Interfaces;
+using WMS.Services;
 
 namespace WMS.Controllers
 {
@@ -29,8 +30,11 @@ namespace WMS.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStock([FromBody] Stock payload)
+        public async Task<IActionResult> CreateStock([FromBody] Stock stock)
         {
+            var createdStock = await _stockService.CreateStock(stock);
+            return CreatedAtAction(nameof(GetStockById), new { id = createdStock.Id }, createdStock);
+            /*
             if (payload == null || payload.Products == null || !payload.Products.Any())
                 return BadRequest(new { Message = "Invalid payload" });
 
@@ -39,12 +43,22 @@ namespace WMS.Controllers
                 return BadRequest(new { Message = "Invalid operation type" });
             }
 
-            var updatedStock = await _stockService.UpdateQuantity(payload);
+            try
+            {
+                var updatedStock = await _stockService.UpdateQuantity(payload);
+                return Ok(new { Message = "Stock updated successfully!" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            } */
+        }
 
-            if (updatedStock == null)
-                return NotFound(new { Message = "Stock not found" });
-
-            return Ok(new { Message = "Stock updated successfully!" });
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetStockById(int id)
+        {
+            var stock = await _stockService.GetStockById(id);
+            return Ok(stock);
         }
     }
 }
