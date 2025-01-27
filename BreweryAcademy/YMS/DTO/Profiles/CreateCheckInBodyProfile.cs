@@ -31,11 +31,10 @@
                 .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => src.InvoiceType.ToString())); // Enum to String conversion
 
             // Map CreateCheckInBody to CheckIn
-            CreateMap<CreateCheckInBody, CheckIn>()
-                .ForMember(dest => dest.InvoiceReferenced, opt => opt.Ignore()); // Handle custom logic if needed
+            CreateMap<CreateCheckInBody, CheckIn>();
 
             // Map CheckIn to CreateCheckInResponse
-            CreateMap<CheckIn, CreateCheckInResponse>();
+            CreateMap<CheckIn, CreateCheckInResponse>().ForMember(x => x.Id, src => src.MapFrom(x => x.Id));
         }
 
         public static class EnumHelper

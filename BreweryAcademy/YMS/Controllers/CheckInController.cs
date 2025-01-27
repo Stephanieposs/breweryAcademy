@@ -31,16 +31,15 @@ namespace YMS.Controllers
 		{
 			try
 			{
-				var result = service.CreateCheckIn(request);
+				var result = await service.CreateCheckIn(request);
                 return Ok(new CreateCheckInResponse
                 {
-                    Id = result.Id,
+                    Id = result.Id
                 });
-                //return Created($"CheckIn/{result.Id}", result);
             }
 			catch(Exception ex)
 			{
-				return BadRequest(ex);
+				return BadRequest(ex.Message);
 			}
 		}
 

@@ -10,7 +10,7 @@ namespace YMS.Services
 			var checkIn = mapper.Map<CheckIn>(request);
 			var result = await repository.CreateCheckIn(checkIn);
 			var checkInId = mapper.Map<CreateCheckInResponse>(result);
-			return new CreateCheckInResponse();
+			return checkInId;
 		}
 	
 	}

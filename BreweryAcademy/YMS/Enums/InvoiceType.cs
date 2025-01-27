@@ -6,9 +6,9 @@ namespace YMS.Enums
 	{
 		[Description("None")]
 		None = 0,
-		[Description("Entry")]
-		Entry,
-		[Description("Exist")]
-		Exist
+		[Description("Load")]
+		Load=1,
+		[Description("Unload")]
+		Unload=2
 	}
 }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YMS.Data;
 
@@ -10,9 +11,11 @@ using YMS.Data;
 namespace YMS.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250127130958_addedMissingFields")]
+    partial class addedMissingFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,12 +37,18 @@ namespace YMS.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int>("InvoiceReferenced")
+                        .HasColumnType("int");
+
                     b.Property<string>("TruckPlate")
                         .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("InvoiceReferenced")
+                        .IsUnique();
 
                     b.ToTable("CheckIns");
                 });
@@ -52,21 +61,13 @@ namespace YMS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CheckInId")
-                        .HasColumnType("int");
-
                     b.Property<int>("InvoiceId")
                         .HasColumnType("int");
 
-                    b.Property<string>("InvoiceType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Property<int>("InvoiceType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CheckInId")
-                        .IsUnique();
 
                     b.ToTable("Invoices");
                 });
@@ -95,15 +96,15 @@ namespace YMS.Migrations
                     b.ToTable("InvoiceItem", (string)null);
                 });
 
-            modelBuilder.Entity("YMS.Entities.Invoice", b =>
+            modelBuilder.Entity("YMS.Entities.CheckIn", b =>
                 {
-                    b.HasOne("YMS.Entities.CheckIn", "CheckIn")
-                        .WithOne("Invoice")
-                        .HasForeignKey("YMS.Entities.Invoice", "CheckInId")
+                    b.HasOne("YMS.Entities.Invoice", "Invoice")
+                        .WithOne("CheckIn")
+                        .HasForeignKey("YMS.Entities.CheckIn", "InvoiceReferenced")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CheckIn");
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("YMS.Entities.InvoiceItem", b =>
@@ -115,14 +116,11 @@ namespace YMS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("YMS.Entities.CheckIn", b =>
-                {
-                    b.Navigation("Invoice")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("YMS.Entities.Invoice", b =>
                 {
+                    b.Navigation("CheckIn")
+                        .IsRequired();
+
                     b.Navigation("Items");
                 });
 #pragma warning restore 612, 618

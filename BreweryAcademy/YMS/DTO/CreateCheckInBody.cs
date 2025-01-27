@@ -4,7 +4,7 @@
 	{
 		public InvoiceDto Invoice { get; set; } = default!;
 		public string DriverDocument { get; set; } = string.Empty;
-		public string TruckPlate = string.Empty;
+		public string TruckPlate { get; set; } = string.Empty;
 	}
 
 	public class  InvoiceDto
