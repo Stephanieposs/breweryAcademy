@@ -4,7 +4,6 @@
     {
         None = 0,
         Load = 1,
-        Unload = 2
-
+        Unload = 2 
     }
 }
