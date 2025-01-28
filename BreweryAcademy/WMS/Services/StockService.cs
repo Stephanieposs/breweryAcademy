@@ -91,7 +91,7 @@ namespace WMS.Services
 
                 if (stock.OperationType == Enums.OperationType.Load)
                 {
-                    existingProduct.Quantity -= product.Quantity;
+                    existingProduct.Quantity += product.Quantity;
                 }
                 else if (stock.OperationType == Enums.OperationType.Unload)
                 {
@@ -99,7 +99,7 @@ namespace WMS.Services
                     {
                         throw new InvalidOperationException($"Insufficient quantity for product with ID {product.Id}. Available quantity: {existingProduct.Quantity}");
                     }
-                    existingProduct.Quantity += product.Quantity;
+                    existingProduct.Quantity -= product.Quantity;
                 }
                 else
                 {
