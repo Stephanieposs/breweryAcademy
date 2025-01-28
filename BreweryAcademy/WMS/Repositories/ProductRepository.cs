@@ -16,7 +16,7 @@ namespace WMS.Repositories
 
         public async Task<Product> GetProductById(int id)
         {
-            return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<IEnumerable<Product>> GetAllProducts()
@@ -33,7 +33,7 @@ namespace WMS.Repositories
 
         public async Task<Product> UpdateProduct(Product product)
         {
-            _context.Entry(product).State = EntityState.Modified;
+            _context.Products.Update(product);
             await _context.SaveChangesAsync();
             return product;
         }

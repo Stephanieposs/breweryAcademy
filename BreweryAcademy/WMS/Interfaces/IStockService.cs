@@ -5,6 +5,7 @@ namespace WMS.Interfaces
     public interface IStockService
     {
         Task<IEnumerable<Stock>> GetAllStocks();
-        Task<Stock> UpdateQuantity(Stock stock);
+        Task<Stock> CreateStock(Stock stock);
+        Task<Stock> GetStockById(int id);
     }
 }
