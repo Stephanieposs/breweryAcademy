@@ -78,31 +78,3 @@ namespace WMS.Services
         }
     }
 }
-
-/*
- foreach (var product in stock.Products)
-            {
-                var existingProduct = await _productRepository.GetProductById(product.Id);
-                
-                if (existingProduct == null)
-                {
-                    throw new InvalidOperationException($"Product not found");
-                }
-
-                if (stock.OperationType == Enums.OperationType.Load)
-                {
-                    existingProduct.Quantity += product.Quantity;
-                }
-                else if (stock.OperationType == Enums.OperationType.Unload)
-                {
-                    if (existingProduct.Quantity < product.Quantity)
-                    {
-                        throw new InvalidOperationException($"Insufficient quantity for product with ID {product.Id}. Available quantity: {existingProduct.Quantity}");
-                    }
-                    existingProduct.Quantity -= product.Quantity;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Invalid operation type");
-                }
- */

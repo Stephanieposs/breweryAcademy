@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WMS.Data;
 
@@ -10,9 +11,11 @@ using WMS.Data;
 namespace WMS.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250128093424_OperationTypeUpdate")]
+    partial class OperationTypeUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,12 +26,6 @@ namespace WMS.Migrations
 
             modelBuilder.Entity("WMS.Entities.Item", b =>
                 {
-                    b.Property<int>("InternalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InternalId"));
-
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
@@ -38,7 +35,7 @@ namespace WMS.Migrations
                     b.Property<int?>("StockId")
                         .HasColumnType("int");
 
-                    b.HasKey("InternalId");
+                    b.HasKey("Id");
 
                     b.HasIndex("StockId");
 

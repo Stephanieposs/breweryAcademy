@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace WMS.Entities
 {
-    public class Product //stock
+    public class Product 
     {
         public int Id { get; set; }
         public string Name { get; set; }

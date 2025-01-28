@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using WMS.Entities;
 namespace WMS.Data
 {
@@ -19,8 +20,17 @@ namespace WMS.Data
                 .HasKey(s => s.Id);
 
             modelBuilder.Entity<Item>()
+                 .HasKey(i => i.InternalId);
+
+            modelBuilder.Entity<Item>()
             .Property(i => i.Id)
             .ValueGeneratedNever();
+            
+            modelBuilder.Entity<Stock>()
+           .Property(s => s.OperationType)
+           .HasConversion(
+            v => v.ToString(), 
+            v => (Enums.OperationType)Enum.Parse(typeof(OperationType), v)); 
 
             base.OnModelCreating(modelBuilder);
         }
