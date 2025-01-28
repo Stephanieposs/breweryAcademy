@@ -2,6 +2,7 @@
 global using YMS.Enums;
 global using YMS.Data;
 global using AutoMapper;
+global using BuildingBlocks.Exceptions;
 global using System.Reflection;
 global using YMS.Entities;
 global using YMS.Abstractions;

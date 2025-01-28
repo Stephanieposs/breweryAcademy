@@ -16,50 +16,32 @@ namespace YMS.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Get()
 		{
-			try
-			{
+			
 				var result = await service.GetAllCheckIns();
 				return Ok(result);
-			}
-			catch (Exception ex) { 
-				return BadRequest(ex.Message);	
-			}
 		}
 
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetCheckIn), StatusCodes.Status200OK)]
 		public async Task<IActionResult> Get([FromRoute] int id)
 		{
-			try
-			{
-				var response = await service.GetCheckIn(id);
-				return Ok(response);
-			}
-			catch (NotFoundException ex)
-			{
-				return NotFound(ex.Message);
-			}
-			catch (Exception ex) {
-				return BadRequest(ex.Message);
-			}
+			
+			var response = await service.GetCheckIn(id);
+			return Ok(response);
+			
 			
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> Post([FromBody] CreateCheckInBody request)
 		{
-			try
-			{
-				var result = await service.CreateCheckIn(request);
-                return Ok(new CreateCheckInResponse
+			
+			var result = await service.CreateCheckIn(request);
+             return Ok(new CreateCheckInResponse
                 {
                     Id = result.Id
                 });
-            }
-			catch(Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+            
 		}
 
 		

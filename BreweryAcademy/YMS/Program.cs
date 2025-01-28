@@ -1,4 +1,5 @@
 
+using BuildingBlocks.Exceptions.Handler;
 using HealthChecks.UI.Client;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddDbContext<DefaultContext>(opt =>
 	opt.UseSqlServer(builder.Configuration.GetConnectionString("Database")).LogTo(Console.WriteLine, LogLevel.Information),
 	ServiceLifetime.Scoped);
+
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -43,8 +46,10 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 {
 	ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
-app.UseAuthorization();
 
+app.UseExceptionHandler(opt => { });
+app.UseAuthorization();
+app.AutoMigrate();
 app.MapControllers();
 
 app.Run();
