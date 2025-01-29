@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions.Handler;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using WMS.Data;
@@ -24,7 +25,12 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+
 var app = builder.Build();
+
+app.UseExceptionHandler(opt => { });
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -33,6 +39,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+ApplyMigrations(app);
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -40,3 +48,23 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static void ApplyMigrations(WebApplication app)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<DefaultContext>();
+        // Check and apply pending migrations
+        var pendingMigrations = dbContext.Database.GetPendingMigrations();
+        if (pendingMigrations.Any())
+        {
+            Console.WriteLine("Applying pending migrations...");
+            dbContext.Database.Migrate();
+            Console.WriteLine("Migrations applied successfully.");
+        }
+        else
+        {
+            Console.WriteLine("No pending migrations found.");
+        }
+    }
+}

@@ -1,9 +1,10 @@
 
-using BuildingBlocks.Exceptions.Handler;
+using BuildingBlocks.Behaviours;
 using HealthChecks.UI.Client;
-using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
+var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
 /*
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -12,6 +13,17 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddDbContext<DefaultContext>(opt =>
 	opt.UseSqlServer(builder.Configuration.GetConnectionString("Database")).LogTo(Console.WriteLine, LogLevel.Information),
 	ServiceLifetime.Scoped);
+
+
+
+Log.Logger = new LoggerConfiguration()
+	.WriteTo.Console()  
+	.Enrich.FromLogContext() 
+	.CreateLogger();
+
+builder.Host.UseSerilog();
+
+
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
@@ -28,13 +40,12 @@ builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnect
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
-var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 builder.Services.AddScoped<ICheckInRepository, CheckInRepository>();
 builder.Services.AddScoped<CheckInService>();
 builder.Services.AddAutoMapper(opt => opt.AddMaps(assemblies));
 
 var app = builder.Build();
-
+app.UseMiddleware<LoggingBehaviour>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -46,6 +57,8 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 {
 	ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
+
+
 
 app.UseExceptionHandler(opt => { });
 app.UseAuthorization();

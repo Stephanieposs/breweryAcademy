@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BuildingBlocks.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using WMS.Data;
 using WMS.Entities;
 using WMS.Interfaces;
 using WMS.Repositories;
+using System.Text.Json;
+
 
 namespace WMS.Services
 {
@@ -26,41 +29,67 @@ namespace WMS.Services
 
         public async Task<Stock> CreateStock(Stock stock)
         {
-            var newStock = await _stockRepository.CreateStock(stock);
-
-            foreach (var item in stock.Products)
+            try
             {
-                var existingProduct = await _productRepository.GetProductById(item.Id);
+                var ymsBaseUrl = "https://localhost:7071/api/CheckIn"; 
+                var ymsData = await FetchDataAsync(ymsBaseUrl);
 
-                if (existingProduct == null)
-                {
-                    throw new InvalidOperationException($"Product not found");
-                }
+                var ymsStockData = JsonSerializer.Deserialize<List<Stock>>(ymsData);
 
-                if (stock.OperationType == Enums.OperationType.Load)
+                foreach (var item in stock.Products)
                 {
-                    existingProduct.Quantity -= item.Quantity;
-                }
-                else if (stock.OperationType == Enums.OperationType.Unload)
-                {
-                    if (existingProduct.Quantity < item.Quantity)
+                    var ymsItem = ymsStockData?.FirstOrDefault(x => x.Id == item.Id);
+                    if (ymsItem != null)
                     {
-                        throw new InvalidOperationException($"Insufficient quantity for product with ID {item.Id}. Available quantity: {existingProduct.Quantity}");
+                        var ymsProduct = ymsItem.Products.FirstOrDefault(p => p.Id == item.Id);
+
+                        item.Quantity = ymsProduct.Quantity;
                     }
-                    existingProduct.Quantity += item.Quantity;
                 }
-                else
+
+                var newStock = await _stockRepository.CreateStock(stock);
+
+                foreach (var item in stock.Products)
                 {
-                    throw new InvalidOperationException($"Invalid operation type");
+                    var existingProduct = await _productRepository.GetProductById(item.Id);
+
+                    if (existingProduct == null)
+                    {
+                        throw new NotFoundException("Product", item.Id);
+                    }
+                    if (item.Quantity < 0)
+                    {
+                        throw new InvalidOperationException("Quantity cannot be negative");
+                    }
+
+                    if (stock.OperationType == Enums.OperationType.Load)
+                    {
+                        if (existingProduct.Quantity < item.Quantity)
+                        {
+                            throw new InvalidOperationException($"Insufficient quantity for product with ID {item.Id}. Available quantity: {existingProduct.Quantity}");
+                        }
+                        existingProduct.Quantity -= item.Quantity;
+                    }
+                    else if (stock.OperationType == Enums.OperationType.Unload)
+                    {
+                        existingProduct.Quantity += item.Quantity;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Invalid operation type");
+                    }
+                    await _productRepository.UpdateProduct(existingProduct);
                 }
-                await _productRepository.UpdateProduct(existingProduct);
+
+                var baseUrl = "https://localhost:7046/api/Sap/wms/";
+                var fullUrl = $"{baseUrl}{stock.InvoiceId}";
+                await FetchDataAsync(fullUrl);
+
+                return stock;
             }
-
-            var baseUrl = "https://localhost:7046/api/Sap/wms/";
-            var fullUrl = $"{baseUrl}{stock.InvoiceId}";
-            FetchDataAsync(fullUrl);
-
-            return stock;
+            catch (Exception) {
+                throw new InternalServerErrorException("An error occurred while processing the stock");
+            }
 
         }
 

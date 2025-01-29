@@ -11,6 +11,7 @@ public class CustomExceptionHandler
 {
 	public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
 	{
+		logger.LogInformation("Teste");
 		logger.LogError(
 			"Error Message: {exceptionMessage}, Time of occurrence {time}",
 			exception.Message, DateTime.UtcNow);
