@@ -1,4 +1,5 @@
-﻿using WMS.Entities;
+﻿using BuildingBlocks.Exceptions;
+using WMS.Entities;
 using WMS.Interfaces;
 
 namespace WMS.Services
@@ -24,11 +25,21 @@ namespace WMS.Services
 
         public async Task<Product> CreateProduct(Product product)
         {
+            if (product.Quantity < 0)
+            {
+                throw new BadRequestException("Product quantity cannot be negative.");
+            }
+
             return await _productRepository.CreateProduct(product);
         }
 
         public async Task<Product> UpdateProduct(Product product)
         {
+            if (product.Quantity < 0)
+            {
+                throw new BadRequestException("Product quantity cannot be negative.");
+            }
+
             return await _productRepository.UpdateProduct(product);
         }
 
