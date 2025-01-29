@@ -34,24 +34,6 @@ namespace WMS.Controllers
         {
             var createdStock = await _stockService.CreateStock(stock);
             return CreatedAtAction(nameof(GetStockById), new { id = createdStock.Id }, createdStock);
-            /*
-            if (payload == null || payload.Products == null || !payload.Products.Any())
-                return BadRequest(new { Message = "Invalid payload" });
-
-            if (payload.OperationType != Enums.OperationType.Load && payload.OperationType != Enums.OperationType.Unload)
-            {
-                return BadRequest(new { Message = "Invalid operation type" });
-            }
-
-            try
-            {
-                var updatedStock = await _stockService.UpdateQuantity(payload);
-                return Ok(new { Message = "Stock updated successfully!" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            } */
         }
 
         [HttpGet("{id}")]
