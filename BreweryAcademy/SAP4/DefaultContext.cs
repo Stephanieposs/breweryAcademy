@@ -17,7 +17,7 @@ namespace SAP4
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            /*
+            
             //modelBuilder.Entity<InvoiceSAP>().HasKey(x => x.Id);
 
             base.OnModelCreating(modelBuilder);
@@ -29,12 +29,15 @@ namespace SAP4
 
                 // Add other configuration options for InvoiceSAP
             });
-            */
+            
 
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             
-       
+            //modelBuilder.ApplyConfiguration(new SAPConfiguration());
+            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+
         }
     }
 }

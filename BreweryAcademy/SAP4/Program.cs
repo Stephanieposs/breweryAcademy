@@ -24,7 +24,6 @@ public partial class Program
 
         builder.Services.AddHostedService<Worker>();
 
-
         builder.Services.AddDbContext<DefaultContext>(options =>
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -46,9 +45,9 @@ public partial class Program
         app.MapControllers();
 
         // Apply migrations automatically
-        ApplyMigrations(app);
+        //ApplyMigrations(app);
 
-        //app.MapGet("/", () => "Hello, World!");
+        app.MapGet("/", () => "Hello, World!");
 
         app.Run();
 
