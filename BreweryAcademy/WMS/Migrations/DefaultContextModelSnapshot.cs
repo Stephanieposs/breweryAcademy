@@ -21,6 +21,30 @@ namespace WMS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("WMS.Entities.Item", b =>
+                {
+                    b.Property<int>("InternalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InternalId"));
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StockId")
+                        .HasColumnType("int");
+
+                    b.HasKey("InternalId");
+
+                    b.HasIndex("StockId");
+
+                    b.ToTable("Items");
+                });
+
             modelBuilder.Entity("WMS.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -36,12 +60,7 @@ namespace WMS.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StockId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("StockId");
 
                     b.ToTable("Products");
                 });
@@ -57,19 +76,37 @@ namespace WMS.Migrations
                     b.Property<int>("InvoiceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OperationType")
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("Stocks");
                 });
 
-            modelBuilder.Entity("WMS.Entities.Product", b =>
+            modelBuilder.Entity("WMS.Entities.Item", b =>
                 {
                     b.HasOne("WMS.Entities.Stock", null)
                         .WithMany("Products")
                         .HasForeignKey("StockId");
+                });
+
+            modelBuilder.Entity("WMS.Entities.Stock", b =>
+                {
+                    b.HasOne("WMS.Entities.Product", null)
+                        .WithMany("Stocks")
+                        .HasForeignKey("ProductId");
+                });
+
+            modelBuilder.Entity("WMS.Entities.Product", b =>
+                {
+                    b.Navigation("Stocks");
                 });
 
             modelBuilder.Entity("WMS.Entities.Stock", b =>

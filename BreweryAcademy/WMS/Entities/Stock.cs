@@ -1,5 +1,4 @@
 ﻿using WMS.Enums;
-
 namespace WMS.Entities
 {
     public class Stock
@@ -7,6 +6,6 @@ namespace WMS.Entities
         public int Id { get; set; }
         public int InvoiceId { get; set; }
         public OperationType OperationType { get; set; }
-        public List<Product> Products { get; set; } = new List<Product>();
+        public List<Item> Products { get; set; } = new List<Item>();
     }
 }

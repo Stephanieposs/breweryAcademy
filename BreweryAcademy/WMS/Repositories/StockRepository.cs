@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using WMS.Data;
 using WMS.Entities;
 using WMS.Interfaces;
@@ -21,15 +22,16 @@ namespace WMS.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Stock> UpdateQuantity(Stock stock)
+        public async Task<Stock> CreateStock(Stock stock)
         {
-            _context.Entry(stock).State = EntityState.Modified;
-            foreach (var product in stock.Products)
-            {
-                _context.Entry(product).State = EntityState.Modified;
-            }
+            _context.Stocks.Add(stock);
             await _context.SaveChangesAsync();
             return stock;
+        }
+
+        public async Task<Stock> GetStockById(int id)
+        {
+            return await _context.Stocks.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
         }
     }
 }
