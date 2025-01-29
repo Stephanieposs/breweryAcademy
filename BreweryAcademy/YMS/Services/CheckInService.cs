@@ -1,4 +1,5 @@
 ﻿
+using YMS.DTO.Validators;
 using YMS.DTO.WMSCommunication;
 using YMS.Exceptions;
 
@@ -8,6 +9,11 @@ namespace YMS.Services
 	{
 		public async Task<CreateCheckInResponse> CreateCheckIn(CreateCheckInBody request)
 		{
+			var validator = new CreateCheckInBodyValidator();
+			var isValid = await validator.ValidateAsync(request);
+			if (!isValid.IsValid) throw new ValidationException(isValid.Errors);
+
+
 			var sapBaseUrl = _configuration["Urls:SAP"];
 			if (sapBaseUrl is null) throw new Exception("SAP URL not configured");
 

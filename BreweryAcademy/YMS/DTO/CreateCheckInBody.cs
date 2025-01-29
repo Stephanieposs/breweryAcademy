@@ -11,7 +11,7 @@
 	{
 		public int InvoiceId { get; set; }
 		public List<InvoiceItemDto> Items { get; set; } = new();
-		public string InvoiceType { get; set; }
+		public string InvoiceType { get; set; } = string.Empty;
 	}
 
 	public class InvoiceItemDto
