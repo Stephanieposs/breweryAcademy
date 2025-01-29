@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
-namespace BuildingBlocks.Behaviours
+namespace BuildingBlocks.Behaviours 
 {
 	public class LoggingBehaviour
 	{
@@ -23,17 +20,44 @@ namespace BuildingBlocks.Behaviours
 
 		public async Task InvokeAsync(HttpContext context)
 		{
-			context.Request.EnableBuffering();
+			string requestBody = await ReadRequestBody(context.Request);
+			
+			var originalBodyStream = context.Response.Body;
+			using (var memoryStream = new MemoryStream())
+			{
+				context.Response.Body = memoryStream;
 
-			var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
+				var stopWatch = new Stopwatch();
+				stopWatch.Start();
+				await _next(context);
+				stopWatch.Stop();
 
-			_logger.LogInformation("RequestMethod: {Method} - Route: {Path} - Body: {body}", context.Request.Method, context.Request.Path, requestBody);
+				var timelapse = stopWatch.Elapsed;
 
-			context.Request.Body.Position = 0;
-			await _next(context);
+				memoryStream.Position = 0;
+				string responseBody = await new StreamReader(memoryStream).ReadToEndAsync();
 
-			_logger.LogInformation("ResponseStatus: {StatusCode} - Route: {Route}", context.Response.StatusCode, context.Request.Path);
+				memoryStream.Position = 0;
+				await memoryStream.CopyToAsync(originalBodyStream); 
+
+				context.Response.Body = originalBodyStream;
+
+				_logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path} {requestBody}");
+				_logger.LogInformation($"Response: {context.Response.StatusCode} {responseBody}");
+				_logger.LogInformation("Request concluded in {time} ms",timelapse.Milliseconds);
+			}
+		}
+
+		private async Task<string> ReadRequestBody(HttpRequest request)
+		{
+			request.EnableBuffering(); 
+
+			using (var reader = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
+			{
+				var body = await reader.ReadToEndAsync();
+				request.Body.Position = 0; 
+				return body;
+			}
 		}
 	}
-
 }
