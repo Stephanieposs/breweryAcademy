@@ -15,7 +15,14 @@ namespace WMS.Services
 
         public async Task<Product> GetProductById(int id)
         {
-            return await _productRepository.GetProductById(id);
+            var product = await _productRepository.GetProductById(id);
+
+            if (product == null)
+            {
+                throw new NotFoundException("Produto não encontrado.");
+            }
+
+            return product;
         }
 
         public async Task<IEnumerable<Product>> GetAllProducts()
