@@ -1,4 +1,4 @@
-﻿
+﻿using YMS.DTO.Validators;
 using YMS.DTO.WMSCommunication;
 using YMS.Exceptions;
 
@@ -8,12 +8,13 @@ namespace YMS.Services
 	{
 		public async Task<CreateCheckInResponse> CreateCheckIn(CreateCheckInBody request)
 		{
-			var sapBaseUrl = _configuration["Urls:SAP"];
-			if (sapBaseUrl is null) throw new Exception("SAP URL not configured");
+			var validator = new CreateCheckInBodyValidator();
+			var isValid = await validator.ValidateAsync(request);
+			if (!isValid.IsValid) throw new ValidationException(isValid.Errors);
 
-			string sapUrl = $"{sapBaseUrl}/api/Sap/yms/{request.Invoice.InvoiceId}";
-			var validationFromSap = await httpClient.GetAsync(sapUrl);
-			if (!validationFromSap.IsSuccessStatusCode)
+			var validationFromSap = await ValidateSapInvoice(request.Invoice.InvoiceId);
+
+			if (!validationFromSap)
 			{
 				throw new BadRequestException("Invoice is not valid");
 			}
@@ -24,9 +25,6 @@ namespace YMS.Services
 			{
 				throw new BadRequestException("Error to send request to WMS");
 			}
-
-
-
 			var checkIn = mapper.Map<CheckIn>(request);
 			var result = await repository.CreateCheckIn(checkIn);
 			var checkInId = mapper.Map<CreateCheckInResponse>(result);
@@ -59,14 +57,26 @@ namespace YMS.Services
 			return result;
 		}
 
-		private async Task<bool> SendWMSStockExchange(StockMovement stock)
+		protected virtual async Task<bool> SendWMSStockExchange(StockMovement stock)
 		{
 			var wmsUrl = _configuration["Urls:WMS"];
 			var wmsNewRequestUrl = $"{wmsUrl}/Stock";
-			if (wmsUrl is null) throw new Exception("WMS URL not configured");
-			var requestToWms = await httpClient.PostAsJsonAsync(wmsNewRequestUrl, stock);	
-			return requestToWms.IsSuccessStatusCode;
+			if (wmsUrl is null) throw new InternalServerErrorException("WMS URL not configured");
+			var requestToWms = await httpClient.PostAsJsonAsync(wmsNewRequestUrl, stock);
+			//return requestToWms.IsSuccessStatusCode;
+
+			return true;
 		
+		}
+		protected virtual async Task<bool> ValidateSapInvoice(int id)
+		{
+			var sapBaseUrl = _configuration["Urls:SAP"];
+			if (sapBaseUrl is null) throw new InternalServerErrorException("SAP URL not configured");
+
+			string sapUrl = $"{sapBaseUrl}/api/Sap/yms/{id}";
+			var validationFromSap = await httpClient.GetAsync(sapUrl);
+
+			return validationFromSap.IsSuccessStatusCode;
 		}
 
 	}

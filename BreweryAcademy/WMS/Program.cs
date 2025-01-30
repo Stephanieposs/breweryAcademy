@@ -1,12 +1,21 @@
+using BuildingBlocks.Behaviours;
 using BuildingBlocks.Exceptions.Handler;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using WMS.Data;
 using WMS.Interfaces;
 using WMS.Repositories;
 using WMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -29,6 +38,8 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 
 var app = builder.Build();
+
+app.UseMiddleware<LoggingBehaviour>();
 
 app.UseExceptionHandler(opt => { });
 

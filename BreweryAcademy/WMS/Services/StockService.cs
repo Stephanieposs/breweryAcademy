@@ -13,9 +13,9 @@ namespace WMS.Services
     {
         private readonly IStockRepository _stockRepository;
         private readonly IProductRepository _productRepository;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientWrapper _httpClient;
 
-        public StockService(IStockRepository stockRepository, IProductRepository productRepository, HttpClient httpClient)
+        public StockService(IStockRepository stockRepository, IProductRepository productRepository, IHttpClientWrapper httpClient)
         {
             _stockRepository = stockRepository;
             _productRepository = productRepository;
@@ -31,22 +31,6 @@ namespace WMS.Services
         {
             try
             {
-                var ymsBaseUrl = "https://localhost:7071/api/CheckIn"; 
-                var ymsData = await FetchDataAsync(ymsBaseUrl);
-
-                var ymsStockData = JsonSerializer.Deserialize<List<Stock>>(ymsData);
-
-                foreach (var item in stock.Products)
-                {
-                    var ymsItem = ymsStockData?.FirstOrDefault(x => x.Id == item.Id);
-                    if (ymsItem != null)
-                    {
-                        var ymsProduct = ymsItem.Products.FirstOrDefault(p => p.Id == item.Id);
-
-                        item.Quantity = ymsProduct.Quantity;
-                    }
-                }
-
                 var newStock = await _stockRepository.CreateStock(stock);
 
                 foreach (var item in stock.Products)
@@ -107,3 +91,4 @@ namespace WMS.Services
         }
     }
 }
+

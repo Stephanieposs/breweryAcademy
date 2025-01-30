@@ -15,6 +15,21 @@ namespace YMS.Enums
 			return enumDescriptions.Contains(description);
 		}
 
+		public static TEnum GetValueFromDescription<TEnum>(string description) where TEnum : Enum
+		{
+			foreach (var value in Enum.GetValues(typeof(TEnum)))
+			{
+				var fieldInfo = typeof(TEnum).GetField(value.ToString()!);
+				var attributes = (DescriptionAttribute[])fieldInfo!.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+				if (attributes.Length > 0 && attributes[0].Description == description)
+				{
+					return (TEnum)value;
+				}
+			}
+			throw new ArgumentException("No Enum found with that value");
+		}
+
 		private static string GetEnumDescription(Enum value)
 		{
 			var field = value.GetType().GetField(value.ToString());
