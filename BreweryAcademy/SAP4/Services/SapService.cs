@@ -1,12 +1,15 @@
-﻿using SAP4.Entities;
+﻿using MassTransit;
+using SAP4.Entities;
 using SAP4.Repositories;
+//using SAP4.SapInvoiceProcessor.BackgoundQueue;
 
 namespace SAP4.Services;
 
 public class SapService : ISapService
 {
     public readonly ISapRepository _repo;
-    public SapService(ISapRepository repo)
+
+    public SapService(ISapRepository repo )
     {
         _repo = repo;
     }
@@ -28,13 +31,14 @@ public class SapService : ISapService
     public async Task UpdateStatusAsync(InvoiceSAP invoice)
     {
         var existingInvoice = await _repo.GetById(invoice.Id);
+
         if (existingInvoice == null)
         {
             throw new KeyNotFoundException($"Invoice with ID {invoice.Id} not found.");
         }
 
-        existingInvoice.Status = (InvoiceStatus)2;
 
-        await _repo.UpdateInvoiceStatus(invoice);
+        await _repo.UpdateInvoiceStatus(existingInvoice); 
+
     }
 }

@@ -1,8 +1,10 @@
-﻿
+﻿using BuildingBlocks.Exceptions;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SAP4.Entities;
+using SAP4.Extensions;
 using SAP4.Services;
 using System.ComponentModel.DataAnnotations;
 
@@ -25,7 +27,7 @@ public class SapController : Controller
         var invoices = await _sapService.GetAllAsync();
         if (invoices == null)
         {
-            return NotFound();
+            throw new NotFoundException("Invoice", invoices);
         }
         return Ok(invoices);
     }
@@ -36,34 +38,42 @@ public class SapController : Controller
         var invoice = await _sapService.GetByIdAsync(id);
         if (invoice == null)
         {
-            return NotFound();
+            throw new NotFoundException("InvoiceId", id);
         }
         return Ok(invoice);
     }
 
     [HttpGet("wms/{id}")]
-    public async Task<ActionResult<InvoiceSAP>> GetByIdFromWms(int id)
+    public async Task<ActionResult<InvoiceSAP>> GetByIdFromWms(int id, IBus bus)
     {
         var invoice = await _sapService.GetByIdAsync(id);
         if (invoice == null)
         {
-            return NotFound();
+            throw new NotFoundException("InvoiceId", id);
         }
+
+        invoice.Status = InvoiceStatus.Inactive;
 
         await _sapService.UpdateStatusAsync(invoice);
 
-        return Ok();
+        var eventRequest = new RecordRequestedEvent(invoice.Id, invoice.Status);
+
+        await bus.Publish(eventRequest); // passa para dentro do rabbitMQ
+
+        return Ok(invoice);
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create(InvoiceSAP invoice)
+    public async Task<ActionResult> Create(InvoiceSAP invoice) 
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            throw new BadRequestException(ModelState.ToString());
         }
 
-        await _sapService.AddAsync(invoice);
+        var added =  _sapService.AddAsync(invoice);
+
+
         return Ok(invoice);
     }
 

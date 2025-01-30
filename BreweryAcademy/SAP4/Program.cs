@@ -1,10 +1,12 @@
+using BuildingBlocks.Behaviours;
+using BuildingBlocks.Exceptions.Handler;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SAP4;
+using SAP4.Extensions;
 using SAP4.Repositories;
-using SAP4.SapInvoiceService;
 using SAP4.Services;
-using SapInvoiceProcessor;
+using Serilog;
 
 public partial class Program
 {
@@ -12,7 +14,13 @@ public partial class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        //var builder = Host.CreateApplicationBuilder(args);
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .Enrich.FromLogContext()
+            .CreateLogger();
+
+        builder.Host.UseSerilog();
+
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -21,15 +29,25 @@ public partial class Program
 
         builder.Services.AddScoped<ISapService, SapService>();
         builder.Services.AddScoped<ISapRepository, SapRepository>();
+        //builder.Services.AddSingleton<IBackgroundTaskQueue, InMemoryBackgroundTaskQueue>();
+        //builder.Services.AddHostedService<SAP4.SapInvoiceProcessor.SapInvoiceProcessor>();
 
-        builder.Services.AddHostedService<Worker>();
+        //builder.Services.AddHostedService<Worker>();
 
         builder.Services.AddDbContext<DefaultContext>(options =>
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+        // Adding rabbitMQ
+        builder.Services.AddRabbitMQService();
 
         var app = builder.Build();
+
+        app.UseMiddleware<LoggingBehaviour>();
+
+        app.UseExceptionHandler(opt => { });
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -45,13 +63,13 @@ public partial class Program
         app.MapControllers();
 
         // Apply migrations automatically
-        //ApplyMigrations(app);
+        ApplyMigrations(app);
 
         app.MapGet("/", () => "Hello, World!");
 
         app.Run();
 
-        CreateHostBuilder(args).Build().Run();
+        //CreateHostBuilder(args).Build().Run();
     }
 
     private static void ApplyMigrations(WebApplication app)
@@ -90,7 +108,7 @@ public partial class Program
                     options.UseSqlServer(connectionString));
 
                 // Register background service
-                services.AddHostedService<SapInvoiceService>();
+                //services.AddHostedService<SapInvoiceProcessor>();
 
                 // Add logging
                 services.AddLogging(loggingBuilder =>
