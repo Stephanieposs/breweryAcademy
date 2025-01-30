@@ -1,7 +1,7 @@
-﻿using MassTransit;
+﻿using BuildingBlocks.Exceptions;
+using MassTransit;
 using SAP4.Entities;
 using SAP4.Repositories;
-//using SAP4.SapInvoiceProcessor.BackgoundQueue;
 
 namespace SAP4.Services;
 
@@ -15,30 +15,48 @@ public class SapService : ISapService
     }
     public async Task AddAsync(InvoiceSAP invoice)
     {
+        if (invoice == null)
+        {
+            throw new BadRequestException(nameof(invoice));
+        }
+
         await _repo.AddInvoice(invoice);
     }
 
     public async Task<IEnumerable<InvoiceSAP>> GetAllAsync()
     {
-        return await _repo.GetAllInvokes();
+        return await _repo.GetAllInvoices();
     }
 
     public async Task<InvoiceSAP> GetByIdAsync(int id)
     {
+        if (id <= 0)
+        {
+            throw new BadRequestException("Invalid invoice ID.");
+        }
+
         return await _repo.GetById(id);
     }
 
     public async Task UpdateStatusAsync(InvoiceSAP invoice)
     {
+        if (invoice == null)
+        {
+            throw new BadRequestException(nameof(invoice));
+        }
+
+        if (invoice.Id <= 0)
+        {
+            throw new BadRequestException("Invalid invoice ID.");
+        }
+
         var existingInvoice = await _repo.GetById(invoice.Id);
 
         if (existingInvoice == null)
         {
-            throw new KeyNotFoundException($"Invoice with ID {invoice.Id} not found.");
+            throw new NotFoundException($"Invoice with ID {invoice.Id} not found.");
         }
 
-
         await _repo.UpdateInvoiceStatus(existingInvoice); 
-
     }
 }

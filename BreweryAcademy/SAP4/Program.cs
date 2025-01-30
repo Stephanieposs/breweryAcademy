@@ -23,16 +23,12 @@ public partial class Program
 
 
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddScoped<ISapService, SapService>();
         builder.Services.AddScoped<ISapRepository, SapRepository>();
-        //builder.Services.AddSingleton<IBackgroundTaskQueue, InMemoryBackgroundTaskQueue>();
-        //builder.Services.AddHostedService<SAP4.SapInvoiceProcessor.SapInvoiceProcessor>();
-
-        //builder.Services.AddHostedService<Worker>();
 
         builder.Services.AddDbContext<DefaultContext>(options =>
             options.UseSqlServer(
@@ -68,8 +64,6 @@ public partial class Program
         app.MapGet("/", () => "Hello, World!");
 
         app.Run();
-
-        //CreateHostBuilder(args).Build().Run();
     }
 
     private static void ApplyMigrations(WebApplication app)
@@ -92,29 +86,4 @@ public partial class Program
             }
         }
     }
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureServices((hostContext, services) =>
-            {
-                // Register SAP connection
-                //services.AddSingleton(new SqlConnection("myconnection"));
-
-                // Get the connection string from the host context
-                var connectionString = hostContext.Configuration.GetConnectionString("DefaultConnection");
-
-                // Register the DbContext with the connection string
-                services.AddDbContext<DefaultContext>(options =>
-                    options.UseSqlServer(connectionString));
-
-                // Register background service
-                //services.AddHostedService<SapInvoiceProcessor>();
-
-                // Add logging
-                services.AddLogging(loggingBuilder =>
-                {
-                    loggingBuilder.AddConsole();
-                    loggingBuilder.AddDebug();
-                });
-            });
 }

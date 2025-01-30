@@ -27,7 +27,7 @@ internal sealed class RecordRequestedEventConsumer : IConsumer<RecordRequestedEv
             var json = JsonSerializer.Serialize(notification);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await httpClient.PutAsync("https://localhost:7071/api/Put/Invoice/{Id}", content);
+            var response = await httpClient.PutAsync($"https://localhost:7071/api/Put/Invoice/{message.Id}", content);
 
             if (response.IsSuccessStatusCode)
             {

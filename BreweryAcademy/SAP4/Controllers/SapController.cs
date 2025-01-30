@@ -25,10 +25,7 @@ public class SapController : Controller
     public async Task<ActionResult<object>> GetAll()
     {
         var invoices = await _sapService.GetAllAsync();
-        if (invoices == null)
-        {
-            throw new NotFoundException("Invoice", invoices);
-        }
+        
         return Ok(invoices);
     }
 
