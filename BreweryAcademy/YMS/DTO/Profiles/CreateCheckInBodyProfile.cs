@@ -21,13 +21,13 @@
                 .ForMember(dest => dest.Id, opt => opt.Ignore()); // Ignore Id, as it's usually auto-generated
             */
 
-            CreateMap<InvoiceDto, Invoice>()
+            CreateMap<InvoiceDto, YMS.Entities.Invoice>()
     .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => EnumHelper.ParseInvoiceType(src.InvoiceType))) // Usando a função auxiliar
     .ForMember(dest => dest.Id, opt => opt.Ignore()); // Ignore Id, como ele é geralmente gerado pelo banco de dados
 
 
             // Map Invoice to InvoiceDto
-            CreateMap<Invoice, InvoiceDto>()
+            CreateMap<YMS.Entities.Invoice, InvoiceDto>()
                 .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => src.InvoiceType.ToString())); // Enum to String conversion
 
             // Map CreateCheckInBody to CheckIn

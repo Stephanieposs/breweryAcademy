@@ -22,6 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTO\Invoice\GetInvoice\" />
+    <Folder Include="DTO\Invoice\GetAllInvoices\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

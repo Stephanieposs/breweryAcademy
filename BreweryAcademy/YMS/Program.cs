@@ -41,7 +41,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<ICheckInRepository, CheckInRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();	
 builder.Services.AddScoped<CheckInService>();
+builder.Services.AddScoped<InvoiceService>();
+
 builder.Services.AddAutoMapper(opt => opt.AddMaps(assemblies));
 
 var app = builder.Build();
