@@ -32,10 +32,6 @@ namespace SAP4
             
 
             base.OnModelCreating(modelBuilder);
-            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            
-            //modelBuilder.ApplyConfiguration(new SAPConfiguration());
-            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
 
         }

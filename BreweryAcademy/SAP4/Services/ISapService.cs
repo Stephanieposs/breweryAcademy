@@ -8,4 +8,5 @@ public interface ISapService
     Task<IEnumerable<InvoiceSAP>> GetAllAsync();
     Task AddAsync(InvoiceSAP invoice);
     Task UpdateStatusAsync(InvoiceSAP invoice);
+    //Task ProcessInvoiceAsync(InvoiceSAP invoice);
 }

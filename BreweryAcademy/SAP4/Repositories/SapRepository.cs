@@ -20,7 +20,7 @@ public class SapRepository : ISapRepository
         return invoice;
     }
 
-    public async Task<IEnumerable<InvoiceSAP>> GetAllInvokes()
+    public async Task<IEnumerable<InvoiceSAP>> GetAllInvoices()
     {
         return await _dContext.InvoiceSAPs.ToListAsync();
     }
