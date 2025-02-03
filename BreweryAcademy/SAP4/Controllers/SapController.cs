@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Exceptions;
 using MassTransit;
+using MassTransit.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -25,7 +26,6 @@ public class SapController : Controller
     public async Task<ActionResult<object>> GetAll()
     {
         var invoices = await _sapService.GetAllAsync();
-        
         return Ok(invoices);
     }
 
