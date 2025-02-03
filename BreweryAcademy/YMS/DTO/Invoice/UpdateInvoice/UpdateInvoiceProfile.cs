@@ -4,7 +4,7 @@
 	{
 		public UpdateInvoiceProfile()
 		{
-			CreateMap<YMS.Entities.Invoice, UpdateInvoiceResult>();
+			CreateMap<YMS.Entities.Invoice, UpdateInvoiceResult>().ReverseMap();
 		}
 	}
 }

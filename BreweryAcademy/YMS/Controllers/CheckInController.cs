@@ -19,6 +19,7 @@ namespace YMS.Controllers
 
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(GetCheckIn), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> Get([FromRoute] int id)
 		{
 			
@@ -29,11 +30,14 @@ namespace YMS.Controllers
 		}
 
 		[HttpPost]
+		[ProducesResponseType(typeof(CreateCheckInResponse), StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Post([FromBody] CreateCheckInBody request)
 		{
 			
 			var result = await service.CreateCheckIn(request);
-             return Ok(new CreateCheckInResponse
+             return Created($"/CheckIn/{result.Id}", new CreateCheckInResponse
                 {
                     Id = result.Id
                 });

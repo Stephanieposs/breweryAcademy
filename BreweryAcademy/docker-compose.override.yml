@@ -1,0 +1,31 @@
+services:
+  ymsDatabase:
+    container_name: ymsDatabase
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=M@xY7#zQ2!pVw8&d
+    restart: always
+    ports:
+      - "1429:1433"
+    volumes:
+     - yms_data:/var/opt/mssql
+  wmsDatabase:
+    container_name: wmsDatabase
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=P@ssw0rd!Xy7#9bQm$3zL
+    restart: always
+    ports:
+      - "1431:1433"
+    volumes:
+     - wms_data:/var/opt/mssql
+  sapDatabase:
+    container_name: sapDatabase
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Z@5pB!wY8*mQ7#X2
+    restart: always
+    ports:
+      - "1430:1433"  
+    volumes: 
+      - sap_data:/var/opt/mssql

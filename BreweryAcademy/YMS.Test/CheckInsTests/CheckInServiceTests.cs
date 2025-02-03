@@ -1,20 +1,12 @@
-﻿using System;
-using System.Net.Http;
-using System.Net;
-using FakeItEasy;
-using FakeItEasy.Configuration;
+﻿using FakeItEasy;
 using FluentAssertions;
 using YMS.Abstractions;
-using YMS.Data;
 using YMS.DTO;
 using YMS.Services;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using YMS.Entities;
-using YMS.DTO.WMSCommunication;
-using Microsoft.AspNetCore.Http;
 using Moq;
-using Microsoft.Identity.Client;
 using FluentValidation;
 using BuildingBlocks.Exceptions;
 
