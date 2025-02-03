@@ -1,0 +1,8 @@
+services:
+  ymsDatabase:
+    image: mcr.microsoft.com/mssql/server
+  wmsDatabase:
+    image: mcr.microsoft.com/mssql/server
+  sapDatabase:
+    image: mcr.microsoft.com/mssql/server
+

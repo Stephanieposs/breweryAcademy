@@ -13,9 +13,9 @@ namespace WMS.Services
     {
         private readonly IStockRepository _stockRepository;
         private readonly IProductRepository _productRepository;
-        private readonly IHttpClientWrapper _httpClient;
+        private readonly HttpClient _httpClient;
 
-        public StockService(IStockRepository stockRepository, IProductRepository productRepository, IHttpClientWrapper httpClient)
+        public StockService(IStockRepository stockRepository, IProductRepository productRepository, HttpClient httpClient)
         {
             _stockRepository = stockRepository;
             _productRepository = productRepository;
@@ -29,9 +29,8 @@ namespace WMS.Services
 
         public async Task<Stock> CreateStock(Stock stock)
         {
-            try
-            {
-                var newStock = await _stockRepository.CreateStock(stock);
+            
+				var newStock = await _stockRepository.CreateStock(stock);
 
                 foreach (var item in stock.Products)
                 {
@@ -64,17 +63,16 @@ namespace WMS.Services
                     }
                     await _productRepository.UpdateProduct(existingProduct);
                 }
+				    var baseUrl = "https://localhost:7046/api/Sap/wms/";
+				    var fullUrl = $"{baseUrl}{stock.InvoiceId}";
+				    var inactivateInvoice = await FetchDataAsync(fullUrl);
+				   
+                    if (!inactivateInvoice)
+				    {
+					    throw new BadRequestException("Impossible to validate Invoice");
+				    }
 
-                var baseUrl = "https://localhost:7046/api/Sap/wms/";
-                var fullUrl = $"{baseUrl}{stock.InvoiceId}";
-                await FetchDataAsync(fullUrl);
-
-                return stock;
-            }
-            catch (Exception) {
-                throw new InternalServerErrorException("An error occurred while processing the stock");
-            }
-
+				return stock;
         }
 
         public async Task<Stock> GetStockById(int id)
@@ -82,12 +80,11 @@ namespace WMS.Services
             return await _stockRepository.GetStockById(id);
         }
 
-        public async Task<string> FetchDataAsync(string url)
+        public virtual async Task<bool> FetchDataAsync(string url)
         {
             var response = await _httpClient.GetAsync(url);
 
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            return response.IsSuccessStatusCode;
         }
     }
 }

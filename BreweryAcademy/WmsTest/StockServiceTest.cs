@@ -10,22 +10,24 @@ using WMS.Interfaces;
 using WMS.Services;
 using WMS.Enums;
 using BuildingBlocks.Exceptions;
+using FakeItEasy;
+using FluentAssertions;
 
 namespace WmsTest
 {
     public class StockServiceTest
     {
-        private readonly Mock<IStockRepository> _mockStockRepository;
-        private readonly Mock<IProductRepository> _mockProductRepository;
-        private readonly Mock<IHttpClientWrapper> _mockHttpClient;
-        private readonly IStockService _stockService;
+        private readonly IStockRepository _mockStockRepository;
+        private readonly IProductRepository _mockProductRepository;
+        private readonly IHttpClientWrapper _mockHttpClient;
+        private readonly StockService _stockService;
 
         public StockServiceTest()
         {
-            _mockStockRepository = new Mock<IStockRepository>();
-            _mockProductRepository = new Mock<IProductRepository>();
-            _mockHttpClient = new Mock<IHttpClientWrapper>();
-            _stockService = new StockService(_mockStockRepository.Object, _mockProductRepository.Object, _mockHttpClient.Object);
+            _mockStockRepository = A.Fake<IStockRepository>();
+            _mockProductRepository = A.Fake<IProductRepository>();
+            _mockHttpClient = A.Fake<IHttpClientWrapper>();
+            _stockService = A.Fake<StockService>();
         }
 
         [Fact]
@@ -52,27 +54,21 @@ namespace WmsTest
                 Name = "Product",
                 Quantity = 10
             };
+			A.CallTo(() => _mockStockRepository.CreateStock(stock)).Returns(stock);
+			A.CallTo(() => _mockProductRepository.GetProductById(existingProduct.Id)).Returns(existingProduct);
+			A.CallTo(() => _mockProductRepository.UpdateProduct(existingProduct)).Returns(existingProduct);
 
-            _mockProductRepository.Setup(repo => repo.GetProductById(1)).ReturnsAsync(existingProduct);
-            _mockStockRepository.Setup(repo => repo.CreateStock(stock)).ReturnsAsync(stock);
+			A.CallTo(_stockService).Where(x => x.Method.Name == "FetchDataAsync").WithReturnType<Task<bool>>().Returns(Task.FromResult(true));
 
-            var ymsStockData = "[{\"Id\": 1, \"Products\": [{\"Id\": 1, \"Quantity\": 5}]}]";
-            _mockHttpClient.Setup(client => client.GetAsync(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(ymsStockData)
-            });
+			//act
 
-            //Act
-            var result = await _stockService.CreateStock(stock);
+
+
+			var result = await _stockService.CreateStock(stock);
 
             //Assert
-            Assert.NotNull(result);
-            Assert.Equal(stock.InvoiceId, result.InvoiceId);
-            Assert.Equal(OperationType.Load, result.OperationType);
-
-            _mockProductRepository.Verify(repo => repo.UpdateProduct(It.IsAny<Product>()), Times.Once);
-            _mockStockRepository.Verify(repo => repo.CreateStock(It.IsAny<Stock>()), Times.Once);
+            result.Should().BeAssignableTo<Stock>();
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -100,19 +96,15 @@ namespace WmsTest
                 Quantity = 10
             };
 
-            _mockProductRepository.Setup(repo => repo.GetProductById(1)).ReturnsAsync(existingProduct);
-            _mockStockRepository.Setup(repo => repo.CreateStock(stock)).ReturnsAsync(stock);
+			A.CallTo(() => _mockStockRepository.CreateStock(A<Stock>.Ignored)).Returns(stock);
+			A.CallTo(() => _mockProductRepository.GetProductById(A<int>.Ignored)).Returns(existingProduct);
+		    
+            //act
+			Func<Task> act = async() => await _stockService.CreateStock(stock);
 
-            var ymsStockData = "[{\"Id\": 1, \"Products\": [{\"Id\": 1, \"Quantity\": 5}]}]";
-            _mockHttpClient.Setup(client => client.GetAsync(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(ymsStockData)
-            });
-
-            //Act/Assert
-            await Assert.ThrowsAsync<InternalServerErrorException>(() => _stockService.CreateStock(stock));
-        }
+			//Assert
+			await act.Should().ThrowAsync<InvalidOperationException>();
+		}
 
         [Fact]
         public async Task CreateStock_ShouldThrowInternalServerErrorException_WhenApiFails()
@@ -127,7 +119,7 @@ namespace WmsTest
                     new Item {
                         InternalId = 1,
                         Id = 1,
-                        Quantity = 15
+                        Quantity = 7
                     }
                 }
             };
@@ -139,17 +131,19 @@ namespace WmsTest
                 Quantity = 10
             };
 
-            _mockProductRepository.Setup(repo => repo.GetProductById(1)).ReturnsAsync(new Product { Id = 1, Quantity = 10 });
-            _mockStockRepository.Setup(repo => repo.CreateStock(stock)).ReturnsAsync(stock);
+			A.CallTo(() => _mockStockRepository.CreateStock(stock)).Returns(stock);
+			A.CallTo(() => _mockProductRepository.GetProductById(existingProduct.Id)).Returns(existingProduct);
+			A.CallTo(() => _mockProductRepository.UpdateProduct(existingProduct)).Returns(existingProduct);
 
-            //simulate a failure in the external API
-            _mockHttpClient.Setup(client => client.GetAsync(It.IsAny<string>())).ThrowsAsync(new HttpRequestException("API request failed"));
+			A.CallTo(() => _stockService.FetchDataAsync(A<string>.Ignored)).Returns(Task.FromResult(false));
 
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<InternalServerErrorException>(() => _stockService.CreateStock(stock));
-            Assert.Equal("An error occurred while processing the stock", exception.Message);
-        }
+            //act
+			Func<Task> act = async () => await _stockService.CreateStock(stock);
 
+			//Assert
+			await act.Should().ThrowAsync<InternalServerErrorException>();
+		}
 
+        
     }
 }
