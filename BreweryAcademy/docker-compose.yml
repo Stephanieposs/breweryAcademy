@@ -1,32 +1,37 @@
-# version: "3.9"  # Use a recent version of the Docker Compose file format
+
 
 services:
-  ymsDatabase:
-    image: mcr.microsoft.com/mssql/server
+  ymlDatabase:
+    image: mcr.microsoft.com/mssql/server 
   wmsDatabase:
     image: mcr.microsoft.com/mssql/server
   sapDatabase:
     image: mcr.microsoft.com/mssql/server
+    # volumes:
+     #  - sap_data:/var/lib/mssql 
+
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1  # Replace with your desired version
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.1
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false  # Disable security for simplicity (not recommended for production)
+      - xpack.security.enabled=false 
     ports:
-      - "9200:9200"  # Map host port 9200 to container port 9200
-volumes:
-  yms_data:
-  wms_data:
-  sap_data:
-      - ./elasticsearch-data:/usr/share/elasticsearch/data  # Persist data to a local volume
+      - "9200:9200"
+    volumes:
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.17.1  # Replace with your desired version
+    image: docker.elastic.co/kibana/kibana:8.17.1
     container_name: kibana
     depends_on:
       - elasticsearch
     ports:
-      - "5601:5601"  # Map host port 5601 to container port 5601
+      - "5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+volumes:
+  yms_data:
+  wms_data:
+  sap_data:
