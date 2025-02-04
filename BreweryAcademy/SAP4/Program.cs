@@ -7,6 +7,7 @@ using SAP4.Extensions;
 using SAP4.Repositories;
 using SAP4.Services;
 using Serilog;
+using Serilog.Sinks.Elasticsearch;
 
 public partial class Program
 {
@@ -14,8 +15,21 @@ public partial class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        /*
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
+            .Enrich.FromLogContext()
+            .CreateLogger();
+        */
+
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Elasticsearch(
+                new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+                {
+                    AutoRegisterTemplate = true,
+                    IndexFormat = "my-api-logs-{0:yyyy.MM.dd}",
+                    TemplateName = "my-api-logs-template"
+                })
             .Enrich.FromLogContext()
             .CreateLogger();
 

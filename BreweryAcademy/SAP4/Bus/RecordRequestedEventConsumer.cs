@@ -2,6 +2,8 @@
 using SAP4.Extensions;
 using System.Text.Json;
 using System.Text;
+using MassTransit.Logging;
+using SAP4.Entities;
 
 namespace SAP4.Bus;
 
