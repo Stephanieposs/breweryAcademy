@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BuildingBlocks.Behaviours 
@@ -42,7 +43,22 @@ namespace BuildingBlocks.Behaviours
 
 				context.Response.Body = originalBodyStream;
 
-				_logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path} {requestBody}");
+                // Create a LogMessage object
+                var logMessage = new LogMessage
+                {
+                    Level = "Info",
+                    Message = $"Request: {context.Request.Method} {context.Request.Path}",
+                    RequestBody = requestBody,
+                    ResponseBody = responseBody,
+                    StatusCode = context.Response.StatusCode,
+                    ElapsedMilliseconds = timelapse.Milliseconds,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                // Send the log message to Logstash
+                await SendLogToLogstash(logMessage);
+
+                _logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path} {requestBody}");
 				_logger.LogInformation($"Response: {context.Response.StatusCode} {responseBody}");
 				_logger.LogInformation("Request concluded in {time} ms",timelapse.Milliseconds);
 			}
@@ -59,5 +75,27 @@ namespace BuildingBlocks.Behaviours
 				return body;
 			}
 		}
-	}
+
+        private async Task SendLogToLogstash(LogMessage logMessage)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var json = JsonSerializer.Serialize(logMessage);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = await client.PostAsync("http://localhost:5514", content);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        _logger.LogError($"Failed to send log to Logstash. Status Code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while sending log to Logstash.");
+            }
+        }
+    }
 }
