@@ -1,10 +1,11 @@
-﻿using YMS.DTO.Validators;
+﻿using YMS.Data.MessageBroker.Messages;
+using YMS.DTO.Validators;
 using YMS.DTO.WMSCommunication;
 using YMS.Exceptions;
 
 namespace YMS.Services
 {
-	public class CheckInService(ICheckInRepository repository, IMapper mapper ,HttpClient httpClient, IConfiguration _configuration, IInvoiceRepository invoiceRepository)
+	public class CheckInService(ICheckInRepository repository, IMapper mapper ,HttpClient httpClient, IConfiguration _configuration, IInvoiceRepository invoiceRepository, IBus bus)
 	{
 		public async Task<CreateCheckInResponse> CreateCheckIn(CreateCheckInBody request)
 		{
@@ -64,22 +65,25 @@ namespace YMS.Services
 
 		protected virtual async Task<bool> SendWMSStockExchange(StockMovement stock)
 		{
-			var wmsUrl = _configuration["Urls:WMS"];
+			/*var wmsUrl = _configuration["Urls:WMS"];
 			var wmsNewRequestUrl = $"{wmsUrl}/Stock";
 			if (wmsUrl is null) throw new InternalServerErrorException("WMS URL not configured");
-			var requestToWms = await httpClient.PostAsJsonAsync(wmsNewRequestUrl, stock);
-			return requestToWms.IsSuccessStatusCode;
+			var requestToWms = await httpClient.PostAsJsonAsync(wmsNewRequestUrl, stock);*/
+			var eventPublisher = new StockUpdateEvent(stock.InvoiceId, stock.OperationType, stock.Products);
+			await bus.Publish(eventPublisher);
+
+			return true;
 		
 		}
 		protected virtual async Task<bool> ValidateSapInvoice(int id)
 		{
-			var sapBaseUrl = _configuration["Urls:SAP"];
+			/*var sapBaseUrl = _configuration["Urls:SAP"];
 			if (sapBaseUrl is null) throw new InternalServerErrorException("SAP URL not configured");
 
 			string sapUrl = $"{sapBaseUrl}/api/Sap/yms/{id}";
 			var validationFromSap = await httpClient.GetAsync(sapUrl);
-
-			return validationFromSap.IsSuccessStatusCode;
+			*/
+			return true;
 		}
 
 	}

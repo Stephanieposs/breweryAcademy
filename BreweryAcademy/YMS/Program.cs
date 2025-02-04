@@ -23,6 +23,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.Services.AddRabbitMQServices();
 
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();

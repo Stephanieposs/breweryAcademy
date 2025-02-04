@@ -6,6 +6,16 @@ services:
   wmsDatabase:
     image: mcr.microsoft.com/mssql/server:latest
   sapDatabase:
+    image: mcr.microsoft.com/mssql/server
+  rabbitmq-yms:
+    image: rabbitmq:3-management
+volumes:
+  yms_data:
+  wms_data:
+  sap_data:
+  rabbitmq_data:
+  rabbitmq_log:
+
     image: mcr.microsoft.com/mssql/server:latest
     # volumes:
      #  - sap_data:/var/lib/mssql 
@@ -32,7 +42,3 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
 
 
-volumes:
-  yms_data:
-  wms_data:
-  sap_data:
