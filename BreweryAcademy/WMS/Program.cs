@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using WMS.Data;
+using WMS.Extensions;
 using WMS.Interfaces;
 using WMS.Repositories;
 using WMS.Services;
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddRabbitMQService();
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using WMS.Entities;
+using WMS.Extensions;
 using WMS.Interfaces;
 using WMS.Services;
 
@@ -30,9 +32,13 @@ namespace WMS.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateStock([FromBody] Stock stock)
+        public async Task<IActionResult> CreateStock([FromBody] Stock stock, IBus bus)
         {
             var createdStock = await _stockService.CreateStock(stock);
+
+            var eventRequest = new InvoiceRequestedEvent(createdStock.InvoiceId);
+            await bus.Publish(eventRequest); //publishes into Rabbit
+
             return CreatedAtAction(nameof(GetStockById), new { id = createdStock.Id }, createdStock);
         }
 
