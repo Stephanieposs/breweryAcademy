@@ -5,8 +5,12 @@ services:
     image: mcr.microsoft.com/mssql/server
   sapDatabase:
     image: mcr.microsoft.com/mssql/server
+  rabbitmq-yms:
+    image: rabbitmq:3-management
 volumes:
   yms_data:
   wms_data:
   sap_data:
+  rabbitmq_data:
+  rabbitmq_log:
 

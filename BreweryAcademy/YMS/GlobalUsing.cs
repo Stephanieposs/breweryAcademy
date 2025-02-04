@@ -14,4 +14,5 @@ global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using System.Text.Json.Serialization;
 global using Serilog;
 global using BuildingBlocks.Exceptions.Handler;
+global using MassTransit;
 
