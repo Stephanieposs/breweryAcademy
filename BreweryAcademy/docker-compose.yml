@@ -1,12 +1,12 @@
 
 
 services:
-  ymlDatabase:
-    image: mcr.microsoft.com/mssql/server 
+  ymsDatabase:
+    image: mcr.microsoft.com/mssql/server:latest
   wmsDatabase:
-    image: mcr.microsoft.com/mssql/server
+    image: mcr.microsoft.com/mssql/server:latest
   sapDatabase:
-    image: mcr.microsoft.com/mssql/server
+    image: mcr.microsoft.com/mssql/server:latest
     # volumes:
      #  - sap_data:/var/lib/mssql 
 
@@ -30,6 +30,7 @@ services:
       - "5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
 
 volumes:
   yms_data:
